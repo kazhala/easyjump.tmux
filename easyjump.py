@@ -538,7 +538,7 @@ def _do_get_char(message: str, temp_file_name: str) -> str:
         "-1",
         "-p",
         message,
-        'run-shell -b "tee >> {} << EOF\\n%%%\\nEOF"'.format(
+        'run-shell "tee >> {} << EOF\\n%%%\\nEOF"'.format(
             shlex.quote(temp_file_name)
         ),
     )
