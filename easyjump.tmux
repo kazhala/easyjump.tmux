@@ -10,7 +10,7 @@ import tempfile
 
 
 def main() -> None:
-    check_requirements()
+    tmux_version = check_requirements()
     key_binding = get_option("@easyjump-key-binding") or "j"
     smart_case = get_option("@easyjump-smart-case")
     label_chars = get_option("@easyjump-label-chars")
@@ -28,6 +28,7 @@ def main() -> None:
         "bind-key",
         key_binding,
         "run-shell",
+        *(["-b"] if tmux_version < 3.5 else []),
         shlex.join(
             [
                 sys.executable,
@@ -57,7 +58,7 @@ def main() -> None:
     )
 
 
-def check_requirements() -> None:
+def check_requirements() -> float:
     python_version = platform.python_version_tuple()
     if (int(python_version[0]), int(python_version[1])) < (3, 8):
         raise Exception("python version >= 3.8 required")
@@ -66,6 +67,7 @@ def check_requirements() -> None:
     tmux_version = float(re.compile(r"^tmux (next-)?(\d+\.\d+)").match(result).group(2))
     if tmux_version < 3.0:
         raise Exception("tmux version >= 3.0 required")
+    return tmux_version
 
 
 def get_option(option_name: str) -> str:

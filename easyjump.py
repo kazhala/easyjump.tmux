@@ -1,6 +1,7 @@
 import argparse
 import itertools
 import os
+import re
 import shlex
 import signal
 import subprocess
@@ -72,6 +73,14 @@ def parse_args() -> None:
 
 
 parse_args()
+
+
+def _get_tmux_version() -> float:
+    proc = subprocess.run(("tmux", "-V"), check=True, capture_output=True)
+    return float(re.compile(r"^tmux (next-)?(\d+\.\d+)").match(proc.stdout.decode().strip()).group(2))
+
+
+TMUX_VERSION = _get_tmux_version()
 
 
 class _Selection:
@@ -538,7 +547,8 @@ def _do_get_char(message: str, temp_file_name: str) -> str:
         "-1",
         "-p",
         message,
-        'run-shell "tee >> {} << EOF\\n%%%\\nEOF"'.format(
+        '{} "tee >> {} << EOF\\n%%%\\nEOF"'.format(
+            "run-shell -b" if TMUX_VERSION < 3.5 else "run-shell",
             shlex.quote(temp_file_name)
         ),
     )
