@@ -28,7 +28,6 @@ def main() -> None:
         "bind-key",
         key_binding,
         "run-shell",
-        "-b",
         shlex.join(
             [
                 sys.executable,
